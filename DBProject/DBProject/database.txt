@@ -1,4 +1,4 @@
-##users|id:Integer|name:String|birth:Date|email:String
+##users|id:Integer|name:String|birth:String|email:String
 1, "Alice", 01.01.2000, NULL
 2, "Bob", 01.02.2000, NULL
 3, "Charlie", 15.05.1995, NULL
@@ -13,7 +13,7 @@
 12, "Charlie", 15.05.1995, NULL
 
 ##products|product_id:Integer|title:String|price:Double
-101, "Laptop", 1499.99
 102, "Mouse", 29.90
 103, "Keyboard", 30.45
+104, "Laptop", 35.0
 

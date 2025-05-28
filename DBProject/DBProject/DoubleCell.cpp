@@ -36,12 +36,13 @@ bool DoubleCell::isValid(const std::string& literal) {
 }
 
 DoubleCell::DoubleCell(const std::string& literal) : Cell(literal) {
+    if (isNull) {
+        return;
+    }
     if (!isValid(literal)) {
         throw std::invalid_argument("Invalid double: " + literal);
     }
-    if (!isNull) {
-        value = toDouble(literal);
-    }
+    value = toDouble(literal);
 }
 
 Cell* DoubleCell::clone() {

@@ -17,12 +17,13 @@ bool IntegerCell::isValid(const std::string& input) {
 }
 
 IntegerCell::IntegerCell(const std::string& literal) : Cell(literal){
+    if (isNull) {
+        return;
+    }
     if (!isValid(literal)) {
         throw std::invalid_argument("Invalid integer: " + literal);
     }
-    if (!isNull) {
-        value = toInt(literal);
-    }
+    value = toInt(literal);
 }
 
 Cell* IntegerCell::clone() {

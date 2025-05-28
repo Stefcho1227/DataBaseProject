@@ -218,7 +218,7 @@ void Table::modifyColumn(size_t col, CellType newType, size_t& converted, size_t
     for (size_t i = 0; i < rows.size(); i++) {
         try {
             rows[i].setCell(col, rows[i].getCell(col)->raw(), newType);
-            converted;;
+            ++converted;
         }
         catch (...) {
             rows[i].setCell(col, "NULL", newType);
@@ -231,7 +231,7 @@ void Table::writeToStream(std::ostream& os) const {
     static const char* TYPES_STRINGS[(int)CellType::COUNT] = { "Integer","Double","Date","String"};
     os << "##" << name;
     for (size_t i = 0; i < columnNames.size(); i++) {
-        os << columnNames[i] << ":" << TYPES_STRINGS[(int)columnTypes[i]];
+        os << "|" << columnNames[i] << ":" << TYPES_STRINGS[(int)columnTypes[i]];
     }
     os << '\n';
     for (size_t i = 0; i < rows.size(); i++) {

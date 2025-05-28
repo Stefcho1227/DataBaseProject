@@ -1,0 +1,4 @@
+products|product_id:Integer|title:String|price:Double
+102, "Mouse", 29.90
+103, "Keyboard", 30.45
+104, "Laptop", 35.0
