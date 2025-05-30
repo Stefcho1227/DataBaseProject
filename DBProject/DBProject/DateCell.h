@@ -7,5 +7,6 @@ private:
 	Date value;
 public:
 	explicit DateCell(const std::string& literal);
-	Cell* clone() override;
+	Cell* clone() const override;
+	std::string toString() const;
 };

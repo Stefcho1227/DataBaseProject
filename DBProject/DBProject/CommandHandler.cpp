@@ -234,6 +234,27 @@ bool CommandHandler::execute(const std::string& command, const std::string& args
             }
         }
     }
+    else if (command == "help") {
+        std::cout << "Commands:\n"
+            << " open <file>                                           -> Open a database file\n"
+            << " close                                                 -> Close currently open file\n"
+            << " save                                                  -> Save the current file\n"
+            << " saveas <file>                                         -> Save the current file into a new file\n"
+            << " showtables                                            -> Show all tables\n"
+            << " describe <table>                                      -> Show names and types of table\n"
+            << " print <table> [pages]                                 -> Print rows of the table, pages is for interactive paging (first, prev, next, last, quit)\n"
+            << " export <table> <file>                                 -> Export table to file\n"
+            << " insert <table> <values>                               -> Insert new row into a table. Types of values should match the types of the columns\n"
+            << " delete <table> <search column n> <search value>       -> Delete rows where column n contains the search value\n"
+
+            << " update <table name> <search column n> \n"        
+            "<search value> <target column n> <target value>        -> Update rows where search column n matches search value.Sets target column n to new value\n\n"
+                                                
+            << " select <column n> <value> <table> [pages]             -> Show rows where cloumn n matches value, pages is for interactive paging (first, prev, next, last, quit) \n"
+            << " addcolumn <table> <name> <type>                       -> Add column to table with type\n"
+            << " modify <table> <coumn n> <type>                       -> Modify column n in table to type\n"
+            << " exit                                                  -> Exit the program\n";
+    }
     else {
         std::cout << "Невалидна команда: " << command << '\n';
     }

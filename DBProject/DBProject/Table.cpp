@@ -1,21 +1,21 @@
 #include "Table.h"
 
 std::vector<int> Table::calculateColumnWidths() const {
-    std::vector<int> w(columnNames.size(), 0);
+    std::vector<int> widths(columnNames.size(), 0);
     for (size_t i = 0; i < columnNames.size(); i++) {
-        w[i] = columnNames[i].size();
+        widths[i] = columnNames[i].size();
     }
     for (size_t i = 0; i < rows.size(); i++) {
-        for (size_t j = 0; j < rows[i].getSize(); j++) {
-            w[j] = std::max(w[j], rows[i].getCell(j)->getStringLength());
+        for (size_t j = 0; j < rows[i].size(); j++) {
+            widths[j] = std::max(widths[j], rows[i].getCell(j)->getStringLength());
         }
     }
-    return w;
+    return widths;
 }
 
 void Table::printHeader(const std::vector<int>& widths) const {
     for (size_t i = 0; i < columnNames.size(); i++) {
-        if (i) {
+        if (i > 0) {
             std::cout << "|";
         }
         std::cout.width(widths[i]);
@@ -23,7 +23,7 @@ void Table::printHeader(const std::vector<int>& widths) const {
     }
     std::cout << '\n';
     for (size_t i = 0; i < columnNames.size(); i++) {
-        if (i) {
+        if (i > 0) {
             std::cout << "+";
         }
         for (size_t j = 0; j < widths[i]; j++) {
@@ -121,7 +121,7 @@ void Table::exportTo(const std::string& fileName) const {
     if (!ofs.is_open()) {
         throw std::invalid_argument("Error");
     }
-    ofs << name;
+    ofs << "##" << name;
     for (size_t i = 0; i < columnNames.size(); i++) {
         ofs << "|" << columnNames[i] << ":" << TYPES_STRINGS[(int)columnTypes[i]];
     }
@@ -134,10 +134,8 @@ void Table::exportTo(const std::string& fileName) const {
 void Table::addColumn(const std::string& colName, CellType type) {
     columnNames.push_back(colName);
     columnTypes.push_back(type);
-    /*size_t index = columnTypes.size() - 1;*/
     for (size_t i = 0; i < rows.size(); i++) {
-        //rows[i].setCell(index, "NULL", type);
-        rows[i].addNullCell(/*"NULL", */type);
+        rows[i].addNullCell(type);
     }
 }
 
@@ -157,7 +155,7 @@ size_t Table::deleteRows(size_t searchCol, const std::string& valueExact) {
         return 0;
     }
     for (int i = rows.size() - 1; i >= 0 ; i--) {
-        if (rows[i].getCell(searchCol)->raw() == valueExact) {
+        if (rows[i].getCell(searchCol)->toString() == valueExact) {
             rows.erase(rows.begin() + i);
         }
     }
@@ -173,11 +171,10 @@ size_t Table::updateRows(size_t searchCol, const std::string& searchVal, size_t 
     for (size_t i = 0; i < rows.size(); i++) {
         bool match = false;
         if (isText) {
-            const std::string& cellVal = rows[i].getCell(searchCol)->raw();
-            match = containsCaseInsensitive(cellVal, searchVal);
+            match = containsCaseInsensitive(rows[i].getCell(searchCol)->toString(), searchVal);
         }
         else {
-            match = (rows[i].getCell(searchCol)->raw() == searchVal);
+            match = (rows[i].getCell(searchCol)->toString() == searchVal);
         }
         if (match) {
             rows[i].setCell(targetCol, newVal, columnTypes[targetCol]);
@@ -196,11 +193,10 @@ std::vector<Row> Table::select(size_t col, const std::string& valueSubstr) const
     for (size_t i = 0; i < rows.size(); i++) {
         bool match = false;
         if (isText) {
-            const std::string& cellVal = rows[i].getCell(col)->raw();
-            match = containsCaseInsensitive(cellVal, valueSubstr);
+            match = containsCaseInsensitive(rows[i].getCell(col)->toString(), valueSubstr);
         }
         else {
-            match = (rows[i].getCell(col)->raw() == valueSubstr);
+            match = (rows[i].getCell(col)->toString() == valueSubstr);
         }
         if (match) {
             result.push_back(rows[i]);
@@ -217,7 +213,7 @@ void Table::modifyColumn(size_t col, CellType newType, size_t& converted, size_t
     converted = failed = 0;
     for (size_t i = 0; i < rows.size(); i++) {
         try {
-            rows[i].setCell(col, rows[i].getCell(col)->raw(), newType);
+            rows[i].setCell(col, rows[i].getCell(col)->toString(), newType);
             ++converted;
         }
         catch (...) {

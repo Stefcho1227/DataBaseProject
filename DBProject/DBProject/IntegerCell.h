@@ -7,5 +7,6 @@ private:
 	bool isValid(const std::string& input);
 public:
 	explicit IntegerCell(const std::string& literal);
-	Cell* clone() override;
+	Cell* clone() const override;
+	std::string toString() const override;
 };

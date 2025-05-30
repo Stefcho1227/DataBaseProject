@@ -1,0 +1,18 @@
+##users|id:Integer|name:String|birth:Date|email:String|salaries:Double|work:Integer|friends:Integer
+2, "Bob", 01.02.2000, NULL, NULL, NULL, NULL
+3, "Charlie", 15.05.1995, charlie123@gmail.com, 2500.000000, NULL, NULL
+4, "Alice", 01.01.2000, NULL, NULL, NULL, NULL
+5, "Bob", 01.02.2000, NULL, NULL, NULL, NULL
+6, "Charlie", 15.05.1995, charlie123@gmail.com, 2500.000000, NULL, NULL
+7, "Alice", 01.01.2000, NULL, NULL, NULL, NULL
+8, "Bob", 01.02.2000, NULL, NULL, NULL, NULL
+9, "Charlie", 15.05.1995, charlie123@gmail.com, 2500.000000, NULL, NULL
+10, "Alice", 01.01.2000, NULL, NULL, NULL, NULL
+11, "Bob", 01.02.2000, NULL, NULL, NULL, NULL
+12, "Charlie", 15.05.1995, charlie123@gmail.com, 2500.000000, NULL, NULL
+
+##products|product_id:Integer|title:String|price:Double|availableCount:Integer
+102, "Mouse", 29.900000, 50
+103, "Keyboard", 30.450000, NULL
+104, "Laptop", 35.000000, NULL
+

@@ -7,5 +7,6 @@ private:
 	bool isValid(const std::string& literal);
 public:
 	explicit DoubleCell(const std::string& literal);
-	Cell* clone() override;
+	Cell* clone() const override;
+	std::string toString() const;
 };

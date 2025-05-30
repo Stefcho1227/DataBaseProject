@@ -16,16 +16,22 @@ bool IntegerCell::isValid(const std::string& input) {
     return true;
 }
 
-IntegerCell::IntegerCell(const std::string& literal) : Cell(literal){
-    if (isNull) {
-        return;
+IntegerCell::IntegerCell(const std::string& literal) : value(0) {
+    if (literal == "NULL") {
+        isNull = true;
     }
-    if (!isValid(literal)) {
-        throw std::invalid_argument("Invalid integer: " + literal);
+    if (!isNull) {
+        if (!isValid(literal)) {
+            throw std::invalid_argument("Invalid integer: " + literal);
+        }
+        value = toInt(literal);
     }
-    value = toInt(literal);
+}
+std::string IntegerCell::toString() const {
+    return isNull ? "NULL" : std::to_string(value);
 }
 
-Cell* IntegerCell::clone() {
+Cell* IntegerCell::clone() const {
     return new IntegerCell(*this);
 }
+

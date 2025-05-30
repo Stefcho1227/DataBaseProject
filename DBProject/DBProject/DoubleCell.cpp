@@ -35,16 +35,22 @@ bool DoubleCell::isValid(const std::string& literal) {
     return wasDot && leftDigit && rightDigit;
 }
 
-DoubleCell::DoubleCell(const std::string& literal) : Cell(literal) {
-    if (isNull) {
-        return;
+DoubleCell::DoubleCell(const std::string& literal) : value(0.0) {
+    if (literal == "NULL") {
+        isNull = true;
     }
-    if (!isValid(literal)) {
-        throw std::invalid_argument("Invalid double: " + literal);
+    if (!isNull) {
+        if (!isValid(literal)) {
+            throw std::invalid_argument("Invalid double: " + literal);
+        }
+        value = toDouble(literal);
     }
-    value = toDouble(literal);
 }
 
-Cell* DoubleCell::clone() {
+std::string DoubleCell::toString() const {
+    return isNull ? "NULL" : std::to_string(value);
+}
+
+Cell* DoubleCell::clone() const {
     return new DoubleCell(*this);
 }

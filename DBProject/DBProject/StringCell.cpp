@@ -1,7 +1,18 @@
 #include "StringCell.h"
 
-StringCell::StringCell(const std::string& literal) : Cell(literal){}
+StringCell::StringCell(const std::string& literal) : value("") {
+    if (literal == "NULL") {
+        isNull = true;
+    }
+    if (!isNull) {
+        value = literal;
+    }
+}
 
-Cell* StringCell::clone() {
+std::string StringCell::toString() const {
+    return isNull ? "NULL" : value;
+}
+
+Cell* StringCell::clone() const {
     return new StringCell(*this);
 }

@@ -1,0 +1,5 @@
+##products|product_id:Integer|title:String|price:Double|availableItems:Integer
+102, "Mouse", 29.900000, 60
+103, "Keyboard", 30.450000, NULL
+104, "Laptop", 35.000000, NULL
+

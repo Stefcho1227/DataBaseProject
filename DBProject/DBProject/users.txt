@@ -1,0 +1,12 @@
+##users|id:Integer|name:String|birth:String|email:String|salaries:Integer|work:Integer|friends:Integer
+3, "Charlie", 15.05.1995, charlie123@gmail.com, NULL, NULL, 40
+4, "Alice", 01.01.2000, NULL, NULL, NULL, NULL
+5, "Bob", 01.02.2000, NULL, NULL, NULL, 50
+6, "Charlie", 15.05.1995, charlie123@gmail.com, NULL, NULL, 40
+7, "Alice", 01.01.2000, NULL, NULL, NULL, NULL
+8, "Bob", 01.02.2000, NULL, NULL, NULL, 50
+9, "Charlie", 15.05.1995, charlie123@gmail.com, NULL, NULL, 40
+10, "Alice", 01.01.2000, NULL, NULL, NULL, NULL
+11, "Bob", 01.02.2000, NULL, NULL, NULL, 50
+12, "Charlie", 15.05.1995, charlie123@gmail.com, NULL, NULL, 40
+13, Stefan, 27.12.2003, stefan@gmail.com, NULL, 23, 5
