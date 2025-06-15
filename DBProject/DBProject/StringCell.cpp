@@ -1,5 +1,7 @@
 #include "StringCell.h"
 
+
+
 StringCell::StringCell(const std::string& literal) : value("") {
     if (literal == "NULL") {
         isNull = true;

@@ -12,7 +12,7 @@ void Cell::print(int width) const {
 }
 
 int Cell::getStringLength() const {
-    return static_cast<int>(toString().length());
+    return toString().length();
 }
 
 bool Cell::isNullValue() const{

@@ -1,21 +1,22 @@
-﻿  CommandHandler.cpp
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u041D' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u0435' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u0432' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u0430' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u043B' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u0438' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u0434' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u043D' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u043A' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u043E' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(259,22): warning C4566: character represented by universal-character-name '\u043C' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(86,46): warning C4101: 'e': unreferenced local variable
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(144,46): warning C4101: 'ex': unreferenced local variable
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(277,26): warning C4566: character represented by universal-character-name '\u0413' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(277,26): warning C4566: character represented by universal-character-name '\u0440' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(277,26): warning C4566: character represented by universal-character-name '\u0435' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(277,26): warning C4566: character represented by universal-character-name '\u0448' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(277,26): warning C4566: character represented by universal-character-name '\u043A' cannot be represented in the current code page (1252)
-C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(277,26): warning C4566: character represented by universal-character-name '\u0430' cannot be represented in the current code page (1252)
+﻿  CellUtils.cpp
+  CommandHandler.cpp
+C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(139,38): warning C4101: 'ex': unreferenced local variable
+C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\CommandHandler.cpp(164,38): warning C4101: 'ex': unreferenced local variable
+  DBProject.cpp
+  Database.cpp
+C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\Database.cpp(39,40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Date.cpp
+  DoubleCell.cpp
+  IntegerCell.cpp
+  Row.cpp
+  StringCell.cpp
+  Table.cpp
+C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\Table.cpp(6,42): warning C4267: '=': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\Table.cpp(10,62): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\DBProject\Table.cpp(153,5): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
   DBProject.vcxproj -> C:\Users\Asus\Documents\FMI\OOP_PAK\project\DBProject\x64\Debug\DBProject.exe

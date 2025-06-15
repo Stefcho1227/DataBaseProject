@@ -81,7 +81,7 @@ void Row::addNullCell(CellType expected) {
 	cells.push_back(makeCell("NULL", expected));
 }
 
-Cell* Row::getCell(size_t index) const {
+Cell* Row::getCell(int index) const {
 	if (index >= cells.size()) {
 		throw std::invalid_argument("invalid index");
 	}
@@ -92,7 +92,7 @@ size_t Row::size() const {
 	return cells.size();
 }
 
-void Row::setCell(size_t index, const std::string& literal, CellType expected) {
+void Row::setCell(int index, const std::string& literal, CellType expected) {
 	if (index >= cells.size()) {
 		throw std::invalid_argument("invalid index");
 	}

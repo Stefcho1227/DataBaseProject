@@ -19,7 +19,7 @@ public:
 	void writeToStream(std::ostream& os) const;
 	void print(const std::vector<int>& columnWidths) const;
 	void addNullCell(CellType expected);
-	Cell* getCell(size_t index) const;
-	void setCell(size_t index, const std::string& literal, CellType expected);
+	Cell* getCell(int index) const;
+	void setCell(int index, const std::string& literal, CellType expected);
 	size_t size() const;
 };

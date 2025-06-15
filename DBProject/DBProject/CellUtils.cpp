@@ -41,3 +41,30 @@ bool isDigit(char c) {
 	return c >= '0' && c <= '9';
 }
 
+std::string unescape(const std::string& line) {
+	std::string out;
+	for (size_t i = 0; i < line.size(); i++) {
+		if (line[i] == '\\' && i + 1 < line.size()) {
+			out.push_back(line[++i]);
+		}
+		else {
+			out.push_back(line[i]);
+		}
+	}
+	return out;
+}
+
+char lowerChar(char letter){
+	if ('A' <= letter && letter <= 'Z') {
+		return letter + 32;
+	}
+	return letter;
+}
+
+std::string stripQuotes(const std::string& line) {
+	if (line.size() >= 2 && line.front() == '"' && line.back() == '"') {
+		return line.substr(1, line.size() - 2);
+	}
+	return line;
+}
+

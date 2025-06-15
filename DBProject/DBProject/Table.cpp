@@ -33,31 +33,17 @@ void Table::printHeader(const std::vector<int>& widths) const {
     std::cout << '\n';
 }
 
-bool Table::containsCaseInsensitive(const std::string& cellVal, const std::string& searchVal) const{
-    if (searchVal.empty()) {
-        return true;
+bool Table::containsCaseInsensitive(const std::string& cellString, const std::string& userString) const {
+    std::string value = unescape(stripQuotes(cellString));
+    std::string input = unescape(stripQuotes(userString));
+    for (size_t i = 0; i < value.size(); i++) {
+        value[i] = lowerChar(value[i]);
+    } 
+    for (size_t i = 0; i < input.size(); i++) {
+        input[i] = lowerChar(input[i]);
     }
-    for (size_t i = 0; i + searchVal.size() <= cellVal.size(); i++) {
-        bool correct = true;
-        for (size_t j = 0; j < searchVal.size(); j++) {
-            char a = cellVal[i + j];
-            char b = searchVal[j];
-            if (a >= 'A' && a <= 'Z') {
-                a += 32;
-            }
-            if (b >= 'A' && b <= 'Z') {
-                b += 32;
-            }
-            if (a != b) {
-                correct = false;
-                break;
-            }
-        }
-        if (correct) {
-            return true;
-        }
-    }
-    return false;
+    if (input.empty()) return true;
+    return value.find(input) < value.size();
 }
 
 Table::Table(const std::string name, const std::vector<std::string>& colNames, const std::vector<CellType>& colTypes)
@@ -77,23 +63,36 @@ void Table::print(int pageSize) const {
         return;
     }
     std::vector<int> widths = calculateColumnWidths();
-    size_t per = (pageSize <= 0) ? rows.size() : pageSize;
+    size_t pageLimit = 0;
+    if (pageSize <= 0) {
+        pageLimit = rows.size();
+    }
+    else {
+        pageLimit = pageSize;
+    }
     size_t page = 0;
     size_t total = rows.size();
-    size_t lastPage = per == 0 ? 0 : (total - 1) / per;
+    size_t lastPage = 0;
+    if (pageLimit != 0) {
+        lastPage = (total - 1) / pageLimit;
+    }
+    bool shouldPrintAgain = true;
     while (true) {
-        printHeader(widths);
-        size_t start = page * per;
-        size_t end = std::min(start + per, total);
-        for (size_t i = start; i < end; i++) {
-            rows[i].print(widths);
+        if (shouldPrintAgain) {
+            printHeader(widths);
+            size_t start = page * pageLimit;
+            size_t end = std::min(start + pageLimit, total);
+            for (size_t i = start; i < end; i++) {
+                rows[i].print(widths);
+            }
         }
-        if (per >= total) {
+        if (pageLimit >= total) {
             break;
         }
         std::cout << "first, prev, next, last, quit\n";
         std::string input;
         std::cin >> input;
+        shouldPrintAgain = true;
         if (input == "next" && page < lastPage) {
             page++;
         }
@@ -110,7 +109,8 @@ void Table::print(int pageSize) const {
             break;
         }
         else {
-            std::cout << "please try again";
+            std::cout << "please try again\n";
+            shouldPrintAgain = false;
         }
     }
 }
@@ -131,8 +131,8 @@ void Table::exportTo(const std::string& fileName) const {
     }
 }
 
-void Table::addColumn(const std::string& colName, CellType type) {
-    columnNames.push_back(colName);
+void Table::addColumn(const std::string& columnName, CellType type) {
+    columnNames.push_back(columnName);
     columnTypes.push_back(type);
     for (size_t i = 0; i < rows.size(); i++) {
         rows[i].addNullCell(type);
@@ -146,57 +146,49 @@ void Table::insertRow(const std::vector<std::string>& literals) {
     rows.emplace_back(literals, columnTypes);
 }
 
-size_t Table::deleteRows(size_t searchCol, const std::string& valueExact) {
-    if (searchCol >= columnTypes.size()) {
+void Table::deleteRows(int searchColumn, const std::string& value) {
+    if (searchColumn >= columnTypes.size()) {
         throw std::invalid_argument("bad column");
     }
-    size_t before = rows.size();
-    if (before == 0) {
-        return 0;
-    }
     for (int i = rows.size() - 1; i >= 0 ; i--) {
-        if (rows[i].getCell(searchCol)->toString() == valueExact) {
+        if (rows[i].getCell(searchColumn)->toString() == value) {
             rows.erase(rows.begin() + i);
         }
     }
-    return before - rows.size();
 }
 
-size_t Table::updateRows(size_t searchCol, const std::string& searchVal, size_t targetCol, const std::string& newVal) {
-    if (searchCol >= columnTypes.size() || targetCol >= columnTypes.size()) {
+void Table::updateRows(int searchColumn, const std::string& searchValue, int targetColumn, const std::string& newValue) {
+    if (searchColumn >= columnTypes.size() || targetColumn >= columnTypes.size()) {
         throw std::invalid_argument("bad column");
     }
-    bool isText = (columnTypes[searchCol] == CellType::String);
-    size_t changes= 0;
+    bool isText = (columnTypes[searchColumn] == CellType::String);
     for (size_t i = 0; i < rows.size(); i++) {
         bool match = false;
         if (isText) {
-            match = containsCaseInsensitive(rows[i].getCell(searchCol)->toString(), searchVal);
+            match = containsCaseInsensitive(rows[i].getCell(searchColumn)->toString(), searchValue);
         }
         else {
-            match = (rows[i].getCell(searchCol)->toString() == searchVal);
+            match = (rows[i].getCell(searchColumn)->toString() == searchValue);
         }
         if (match) {
-            rows[i].setCell(targetCol, newVal, columnTypes[targetCol]);
-            changes++;
+            rows[i].setCell(targetColumn, newValue, columnTypes[targetColumn]);
         }
     }
-    return changes;
 }
 
-std::vector<Row> Table::select(size_t col, const std::string& valueSubstr) const {
-    if (col >= columnTypes.size()) {
+std::vector<Row> Table::select(int column, const std::string& value) const {
+    if (column >= columnTypes.size()) {
         throw std::invalid_argument("bad column");
     }
     std::vector<Row> result;
-    bool isText = (columnTypes[col] == CellType::String);
+    bool isText = (columnTypes[column] == CellType::String);
     for (size_t i = 0; i < rows.size(); i++) {
         bool match = false;
         if (isText) {
-            match = containsCaseInsensitive(rows[i].getCell(col)->toString(), valueSubstr);
+            match = containsCaseInsensitive(rows[i].getCell(column)->toString(), value);
         }
         else {
-            match = (rows[i].getCell(col)->toString() == valueSubstr);
+            match = (rows[i].getCell(column)->toString() == value);
         }
         if (match) {
             result.push_back(rows[i]);
@@ -205,19 +197,18 @@ std::vector<Row> Table::select(size_t col, const std::string& valueSubstr) const
     return result;
 }
 
-void Table::modifyColumn(size_t col, CellType newType, size_t& converted, size_t& failed) {
-    if (col >= columnTypes.size()) {
+void Table::modifyColumn(int columnNumber, CellType newType, size_t& converted, size_t& failed) {
+    if (columnNumber >= columnTypes.size()) {
         throw std::invalid_argument("bad column");
     }
-    columnTypes[col] = newType;
-    converted = failed = 0;
+    columnTypes[columnNumber] = newType;
     for (size_t i = 0; i < rows.size(); i++) {
         try {
-            rows[i].setCell(col, rows[i].getCell(col)->toString(), newType);
+            rows[i].setCell(columnNumber, rows[i].getCell(columnNumber)->toString(), newType);
             ++converted;
         }
         catch (...) {
-            rows[i].setCell(col, "NULL", newType);
+            rows[i].setCell(columnNumber, "NULL", newType);
             ++failed;
         }
     }
@@ -244,24 +235,29 @@ void Table::readFromStream(std::istream& is) {
             break;
         }
         std::vector<std::string> literals;
-        size_t position = 0;
-        while (position < input.size()) {
-            size_t comma = input.find(',', position);
-            bool found = (comma < input.size());
-            size_t length = found ? (comma - position) : (input.size() - position);
-            std::string token = input.substr(position, length);
-            while (!token.empty() && token[0] == ' ') {
-                token.erase(token.begin());
+        std::string current;
+        bool isQuoted = false;
+        for (size_t i = 0; i < input.size(); i++) {
+            if (input[i] == '"' && (i == 0 || input[i - 1] != '\\')) {
+                isQuoted = !isQuoted;
+                current.push_back(input[i]);
             }
-            literals.push_back(token);
-            if (!found) {
-                break;
+            else if (input[i] == ',' && !isQuoted) {
+                literals.push_back(current);
+                current.clear();
+                if (i + 1 < input.size() && input[i + 1] == ' ') {
+                    ++i;
+                }
             }
-            position = comma + 2;
+            else {
+                current.push_back(input[i]);
+            }
+        }
+        if (!current.empty()) {
+            literals.push_back(current);
         }
         rows.emplace_back(literals, columnTypes);
     }
-
 }
 
 const std::vector<std::string>& Table::getColNames() const {

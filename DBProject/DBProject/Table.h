@@ -19,12 +19,12 @@ public:
 	const std::string& getName() const;
 	void print(int pageSize = -1) const;
 	void exportTo(const std::string& fileName) const;
-	void addColumn(const std::string& colName, CellType type);
+	void addColumn(const std::string& columnName, CellType type);
 	void insertRow(const std::vector<std::string>& literals);
-	size_t deleteRows(size_t searchCol, const std::string& valueExact);
-	size_t updateRows(size_t searchCol, const std::string& searchVal, size_t targetCol, const std::string& newVal);
-	std::vector<Row> select(size_t col, const std::string& valueSubstr) const;
-	void modifyColumn(size_t col, CellType newType, size_t& converted, size_t& failed);
+	void deleteRows(int searchColumn, const std::string& value);
+	void updateRows(int searchColumn, const std::string& searchValue, int targetColumn, const std::string& newValue);
+	std::vector<Row> select(int column, const std::string& value) const;
+	void modifyColumn(int columnNumber, CellType newType, size_t& converted, size_t& failed);
 	void writeToStream(std::ostream& os) const;
 	void readFromStream(std::istream& is);
 	const std::vector<std::string>& getColNames() const;

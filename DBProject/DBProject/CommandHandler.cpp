@@ -1,19 +1,76 @@
 ﻿#include "CommandHandler.h"
 
 void CommandHandler::splitFirst(const std::string& line, std::string& command, std::string& args) const {
-    size_t start = 0;
-    while (start < line.size() && line[start] == ' ') {
-        ++start;
+    std::string trimmed = trim(line);
+    size_t sp = trimmed.find(' ');
+    if (sp >= trimmed.size()) {
+        command = trimmed;
+        args = "";
     }
-    size_t end = start;
-    while (end < line.size() && line[end] != ' ') {
-        ++end;
+    else {
+        command = trimmed.substr(0, sp);
+        args = trim(trimmed.substr(sp + 1));
     }
-    command = line.substr(start, end - start);
-    args = (end < line.size()) ? line.substr(end + 1) : "";
-    while (!args.empty() && args[0] == ' ') {
-        args.erase(args.begin());
+}
+
+std::vector<std::string> CommandHandler::splitArgs(const std::string& literals) const{
+    std::vector<std::string> result;
+    std::string current;
+    bool isQuoted = false;
+    for (size_t i = 0; i < literals.size(); i++) {
+        char c = literals[i];
+        if (c == '"' && (i == 0 || literals[i - 1] != '\\')) {
+            isQuoted = !isQuoted;
+            current.push_back(c);
+        }
+        else if (c == ',' && !isQuoted) {
+            result.push_back(trim(current));
+            current.clear();
+        }
+        else {
+            current.push_back(c);
+        }
     }
+    result.push_back(trim(current));
+    return result;
+}
+
+std::string CommandHandler::trim(const std::string& line) const{
+    size_t left = 0;
+    while (left < line.size() && line[left] == ' ') {
+        ++left;
+    }
+    size_t right = line.size();
+    while (right > left && line[right - 1] == ' ') {
+        --right;
+    }
+    return line.substr(left, right - left);
+}
+
+std::vector<std::string> CommandHandler::splitArgsWithSpaces(const std::string& literals) {
+    std::vector<std::string> result;
+    std::string current;
+    bool isQuoted = false;
+    for (size_t i = 0; i < literals.size(); i++) {
+        char c = literals[i];
+        if (c == '"' && (i == 0 || literals[i - 1] != '\\')) {
+            isQuoted = !isQuoted;
+            current.push_back(c);
+        }
+        else if (c == ' ' && !isQuoted) {
+            if (!current.empty()) {
+                result.push_back(trim(current));
+                current.clear();
+            }
+        }
+        else {
+            current.push_back(c);
+        }
+    }
+    if (!current.empty()) {
+        result.push_back(trim(current));
+    }
+    return result;
 }
 
 bool CommandHandler::execute(const std::string& command, const std::string& args) {
@@ -37,13 +94,21 @@ bool CommandHandler::execute(const std::string& command, const std::string& args
     }
     else if (command == "print") {
         size_t sp = args.find(' ');
-        std::string tbl = (sp < args.size()) ? args.substr(0, sp) : args;
+        std::string table;
+        if (sp < args.size()) {
+            table = args.substr(0, sp);
+        }
+        else {
+            table = args;
+        }
         int page = -1;
         if (sp < args.size()) {
             std::string pageStr = args.substr(sp + 1);
-            if (!pageStr.empty()) page = toInt(pageStr);
+            if (!pageStr.empty()) {
+                page = toInt(pageStr);
+            }
         }
-        db.print(tbl, page);
+        db.print(table, page);
     }
     else if (command == "exit") {
         if (db.isOpen()) {
@@ -57,182 +122,80 @@ bool CommandHandler::execute(const std::string& command, const std::string& args
             std::cout << "Input should be: export <table> <file>\n";
         }
         else {
-            std::string tbl = args.substr(0, sp);
+            std::string table = args.substr(0, sp);
             std::string file = args.substr(sp + 1);
-            db.exportTable(tbl, file);
+            db.exportTable(table, file);
         }
     }
     else if (command == "addcolumn") {
-        std::string tbl;
-        std::string colName;
-        std::string typeStr;
-        size_t p1 = args.find(' ');
-        if (p1 >= args.size()) {
+        std::vector<std::string> values = splitArgsWithSpaces(args);
+        if (values.size() != 3) {
             std::cout << "Input should be: addcolumn <table> <column name> <column type>\n";
         }
-        else {
-            size_t p2 = args.find(' ', p1 + 1);
-            if (p2 >= args.size()) {
-                std::cout << "Input should be: addcolumn <table> <column name> <column type>\n";
-            }
-            else {
-                tbl = args.substr(0, p1);
-                colName = args.substr(p1 + 1, p2 - p1 - 1);
-                typeStr = args.substr(p2 + 1);
-                try {
-                    CellType tp = db.stringToEnumType(typeStr);
-                    db.addColumn(tbl, colName, tp);
-                }
-                catch (const std::exception& e) {
-                    std::cout << "Invalid column type: " << typeStr << '\n';
-                }
-            }
+        try {
+            CellType type = db.stringToEnumType(values[2]);
+            db.addColumn(values[0], values[1], type);
+        }
+        catch (const std::exception& ex) {
+            std::cout << "Invalid column index: " << values[2] << '\n';
         }
     }
     else if (command == "insert") {
         size_t sp = args.find(' ');
         if (sp >= args.size()) {
-            std::cout << "Input should be: insert <table> <values...>\n";
+            std::cout << "Input should be: insert <table> <values...> seperated with ,\n";
         }
         else {
-            std::string tbl = args.substr(0, sp);
-            std::string rest = args.substr(sp + 1);
-            std::vector<std::string> vals;
-            std::string current;
-            bool inQuotes = false;
-            for (size_t i = 0; i <= rest.size(); ++i) {
-                char c = (i < rest.size()) ? rest[i] : ',';
-                if (c == '"' && (i == 0 || rest[i - 1] != '\\'))
-                    inQuotes = !inQuotes, current.push_back(c);
-                else if (c == ',' && !inQuotes) {
-                    size_t a = 0, b = current.size();
-                    while (a < b && current[a] == ' ') ++a;
-                    while (b > a && current[b - 1] == ' ') --b;
-                    vals.push_back(current.substr(a, b - a));
-                    current.clear();
-                    if (i + 1 < rest.size() && rest[i + 1] == ' ') ++i;
-                }
-                else {
-                    current.push_back(c);
-                }
-            }
-            db.insert(tbl, vals);
+            std::string table = args.substr(0, sp);
+            std::string literals = args.substr(sp + 1);
+            std::vector<std::string> values = splitArgs(literals);
+            db.insert(table, values);
         }
     }
     else if (command == "delete") {
-        std::string tbl;
-        std::string colStr;
-        std::string valStr;
-
-        size_t p1 = args.find(' ');
-        if (p1 >= args.size()) {
+        std::vector<std::string> values = splitArgsWithSpaces(args);
+        if (values.size() < 3) {
             std::cout << "Input should be: delete <table> <column> <value>\n";
         }
-        else {
-            size_t p2 = args.find(' ', p1 + 1);
-            if (p2 >= args.size()) {
-                std::cout << "Input should be: delete <table> <column> <value>\n";
-            }
-            else {
-                tbl = args.substr(0, p1);
-                colStr = args.substr(p1 + 1, p2 - p1 - 1);
-                valStr = args.substr(p2 + 1);
-                try {
-                    size_t col = toInt(colStr);
-                    db.deleteRows(tbl, col, valStr);
-                }
-                catch (const std::exception& ex) {
-                    std::cout << "Invalid column index: " << colStr << '\n';
-                }
-            }
+        int columnNumber = toInt(values[1]);
+        try {
+            db.deleteRows(values[0], columnNumber, values[2]);
+        }
+        catch (const std::exception& ex) {
+            std::cout << "Invalid column index: " << columnNumber << '\n';
         }
     }
     else if (command == "select") {
-        size_t p1 = args.find(' ');
-        if (p1 >= args.size()) {
+        std::vector<std::string> values = splitArgsWithSpaces(args);
+        if (values.size() < 3) {
             std::cout << "Input should be: select <column> <value> <table> [pages]\n";
         }
-        else {
-            size_t p2 = args.find(' ', p1 + 1);
-            if (p2 >= args.size()) {
-                std::cout << "Input should be: select <column> <value> <table> [pages]\n";
-            }
-            else {
-                size_t p3 = args.find(' ', p2 + 1);
-                std::string colStr = args.substr(0, p1);
-                std::string valStr = args.substr(p1 + 1, p2 - p1 - 1);
-                std::string tblName;
-                int pages = -1;
-
-                if (p3 >= args.size()) {
-                    tblName = args.substr(p2 + 1);
-                }
-                else {
-                    tblName = args.substr(p2 + 1, p3 - p2 - 1);
-                    std::string pagesStr = args.substr(p3 + 1);
-                    pages = toInt(pagesStr);
-                }
-
-                size_t col = toInt(colStr);
-                db.select(col, valStr, tblName, pages);
-            }
+        int column = toInt(values[0]);
+        int pages = -1;
+        if (values.size() > 3) {
+            pages = toInt(values[3]);
         }
+        db.select(column, values[1], values[2], pages);
     }
     else if (command == "update") {
-        size_t p1 = args.find(' ');
-        if (p1 >= args.size()) {
-            std::cout << "Input should be: update <table> <searchCol> <searchVal> <targetCol> <newVal>\n";
+        std::vector<std::string> values = splitArgsWithSpaces(args);
+        if (values.size() < 5) {
+            std::cout << "Input should be: update <searchColumn> <searchValue> <targetColumn> <newValue>";
         }
         else {
-            size_t p2 = args.find(' ', p1 + 1);
-            if (p2 >= args.size()) {
-                std::cout << "Input should be: update <table> <searchCol> <searchVal> <targetCol> <newVal>\n";
-            }
-            else {
-                size_t p3 = args.find(' ', p2 + 1);
-                if (p3 >= args.size()) {
-                    std::cout << "Input should be: update <table> <searchCol> <searchVal> <targetCol> <newVal>\n";
-                }
-                else {
-                    size_t p4 = args.find(' ', p3 + 1);
-                    if (p4 >= args.size()) {
-                        std::cout << "Input should be: update <table> <searchCol> <searchVal> <targetCol> <newVal>\n";
-                    }
-                    else {
-                        std::string tbl = args.substr(0, p1);
-                        std::string searchColStr = args.substr(p1 + 1, p2 - p1 - 1);
-                        std::string searchVal = args.substr(p2 + 1, p3 - p2 - 1);
-                        std::string targetColStr = args.substr(p3 + 1, p4 - p3 - 1);
-                        std::string newVal = args.substr(p4 + 1);
-
-                        size_t sCol = toInt(searchColStr);
-                        size_t tCol = toInt(targetColStr);
-                        db.updateRows(tbl, sCol, searchVal, tCol, newVal);
-                    }
-                }
-            }
+            int searchColumn = toInt(values[1]);
+            int targetColumn = toInt(values[3]);
+            db.updateRows(values[0], searchColumn, values[2], targetColumn, values[4]);
         }
     }
     else if (command == "modify") {
-        size_t p1 = args.find(' ');
-        if (p1 >= args.size()) {
-            std::cout << "Input should be: modify <table> <column> <newType>\n";
+        std::vector<std::string> values = splitArgsWithSpaces(args);
+        if (values.size() != 3) {
+            std::cout << "Input hsould be: modify <table> <column> <newType>";
         }
-        else {
-            size_t p2 = args.find(' ', p1 + 1);
-            if (p2 >= args.size()) {
-                std::cout << "Input should be: modify <table> <column> <newType>\n";
-            }
-            else {
-                std::string tbl = args.substr(0, p1);
-                std::string colStr = args.substr(p1 + 1, p2 - p1 - 1);
-                std::string typeStr = args.substr(p2 + 1);
-
-                size_t col = toInt(colStr);
-                CellType nt = db.stringToEnumType(typeStr);
-                db.modifyColumn(tbl, col, nt);
-            }
-        }
+        int columnNumnber = toInt(values[1]);
+        CellType newType = db.stringToEnumType(values[2]);
+        db.modifyColumn(values[0], columnNumnber, newType);
     }
     else if (command == "help") {
         std::cout << "Commands:\n"
@@ -256,7 +219,7 @@ bool CommandHandler::execute(const std::string& command, const std::string& args
             << " exit                                                  -> Exit the program\n";
     }
     else {
-        std::cout << "Невалидна команда: " << command << '\n';
+        std::cout << "Invalid command: " << command << '\n';
     }
     return true;
 }
@@ -274,7 +237,7 @@ void CommandHandler::run() {
             }
         }
         catch (const std::exception& ex) {
-            std::cout << "Грешка: " << ex.what() << '\n';
+            std::cout << "Error: " << ex.what() << '\n';
         }
     }
 }

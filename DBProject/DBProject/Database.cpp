@@ -24,8 +24,17 @@ void DataBase::readFromFile(const std::string& path) {
         std::vector<CellType> columnTypes;
         while (bar < input.size()) {
             size_t next = input.find('|', bar + 1);
-            bool found = (next < input.size());
-            size_t tokenLenght = found ? (next - bar - 1) : (input.size() - bar - 1);
+            bool found = false;
+            if (next < input.size()) {
+                found = true;
+            }
+            size_t tokenLenght = 0;
+            if (found) {
+                tokenLenght = next - bar - 1;
+            }
+            else {
+                tokenLenght = input.size() - bar - 1;
+            }
             std::string token = input.substr(bar + 1, tokenLenght);
             int colon = token.find(':');
             if (colon >= token.size()) {
@@ -159,27 +168,27 @@ void DataBase::exportTable(const std::string& name, const std::string& path) con
     table->exportTo(path);
 }
 
-void DataBase::select(size_t col, const std::string& value, const std::string& tableName, int page) const {
+void DataBase::select(int column, const std::string& value, const std::string& tableName, int page) const {
     const Table* table = findTable(tableName);
     if (!table) {
         throw std::invalid_argument("No such table");
     }
-    std::vector<Row> rows = table->select(col, value);
+    std::vector<Row> rows = table->select(column, value);
     if (rows.empty()) {
         std::cout << "no matches\n";
         return;
     }
-    Table tmp("temp", table->getColNames(), table->getColTypes());
-    tmp.setRows(rows);
-    tmp.print(page);
+    Table temp("temp", table->getColNames(), table->getColTypes());
+    temp.setRows(rows);
+    temp.print(page);
 }
 
-void DataBase::addColumn(const std::string& table, const std::string& colName, CellType type) {
+void DataBase::addColumn(const std::string& table, const std::string& columnName, CellType type) {
     Table* tableFound = findTable(table);
     if (!tableFound) {
         throw std::invalid_argument("No such table");
     }
-    tableFound->addColumn(colName, type);
+    tableFound->addColumn(columnName, type);
     unsavedChanges = true;
 }
 
@@ -192,32 +201,32 @@ void DataBase::insert(const std::string& table, const std::vector<std::string>& 
     unsavedChanges = true;
 }
 
-size_t DataBase::deleteRows(const std::string& table, size_t col, const std::string& value) {
+void DataBase::deleteRows(const std::string& table, int column, const std::string& value) {
     Table* tableFound = findTable(table);
     if (!tableFound) {
         throw std::invalid_argument("No such table");
     }
     unsavedChanges = true;
-    return tableFound->deleteRows(col, value);
+    tableFound->deleteRows(column, value);
 }
 
-size_t DataBase::updateRows(const std::string& table, size_t searchCol, const std::string& searchValue, size_t targetCol, const std::string& newValue) {
+void DataBase::updateRows(const std::string& table, int searchColumn, const std::string& searchValue, int targetColumn, const std::string& newValue) {
     Table* tableFound = findTable(table);
     if (!tableFound) {
         throw std::invalid_argument("No such table");
     }
     unsavedChanges = true;
-    return tableFound->updateRows(searchCol, searchValue, targetCol, newValue);
+    tableFound->updateRows(searchColumn, searchValue, targetColumn, newValue);
 }
 
-void DataBase::modifyColumn(const std::string& table, size_t col, CellType newType) {
+void DataBase::modifyColumn(const std::string& table, int columnNumber, CellType newType) {
     Table* tableFound = findTable(table);
     if (!tableFound) {
         throw std::invalid_argument("No such table");
     }
     size_t ok = 0;
     size_t bad = 0;
-    tableFound->modifyColumn(col, newType, ok, bad);
+    tableFound->modifyColumn(columnNumber, newType, ok, bad);
     std::cout << "Converted: " << ok << ", failed: " << bad << '\n';
     unsavedChanges = true;
 }
